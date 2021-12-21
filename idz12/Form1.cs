@@ -7,6 +7,9 @@ namespace idz12
     public partial class Form1 : Form
     {
         private Bitmap bmp;
+        Graphics graphics;
+        Point point, PreviousPoint;
+        private Pen blackPen = new Pen(Color.Black,4);
 
         public Form1()
         {
@@ -16,14 +19,14 @@ namespace idz12
         private void button1_Click(object sender, EventArgs e)
         {
             // Описываем объект класса OpenFileDialog
-            OpenFileDialog dialog = new OpenFileDialog();
+
             // Задаем расширения файлов
-            dialog.Filter = "Image files (*.BMP, *.JPG, *.GIF, *.PNG)| *.bmp; *.jpg; *.gif; *.png)";
+            openFileDialog1.Filter = "Image files (*.BMP, *.JPG, *.GIF, *.PNG)| *.bmp; *.jpg; *.gif; *.png;";
             // Вызываем диалог и проверяем выбран ли файл
-            if (dialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 // Загружаем изображение из выбранного файла
-                Image image = Image.FromFile(dialog.FileName);
+                Image image = Image.FromFile(openFileDialog1.FileName);
                 int width = image.Width;
                 int height = image.Height;
                 pictureBox1.Width = width;
@@ -32,26 +35,88 @@ namespace idz12
                 bmp = new Bitmap(image, width, height);
                 // Записываем изображение в pictureBox1
                 pictureBox1.Image = bmp;
+                graphics = Graphics.FromImage(pictureBox1.Image);
 
+            }
+        }
+
+
+        private void save(Bitmap bmp)
+        {
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string fileName = saveFileDialog1.FileName;
+                string strFilExtn = System.IO.Path.GetExtension(fileName.ToLower());
+                switch (strFilExtn)
+                {
+                    case ".bmp":
+                        bmp.Save(fileName,
+                        System.Drawing.Imaging.ImageFormat.Bmp);
+                        break;
+                    case ".jpg":
+                    case ".jpeg":
+                        bmp.Save(fileName,
+                         System.Drawing.Imaging.ImageFormat.Jpeg);
+                        break;
+                    case ".gif":
+                        bmp.Save(fileName,
+                        System.Drawing.Imaging.ImageFormat.Gif);
+                        break;
+                    case ".tif":
+                    case ".tiff":
+                        bmp.Save(fileName,
+                         System.Drawing.Imaging.ImageFormat.Tiff);
+                        break;
+                    case ".png":
+                        bmp.Save(fileName,
+                        System.Drawing.Imaging.ImageFormat.Png);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            save(bmp);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < bmp.Width; i++)
+            {
+                
+                    for (int z = 0; z < bmp.Height; z++)
+                    {
+                        var pixel = bmp.GetPixel(i, z);
+                        int color = (255 + pixel.R + pixel.G + pixel.B) / 4;
+                        bmp.SetPixel(i, z, Color.FromArgb(color, color, color));
+                        pictureBox1.Image = bmp;
+                    }
+                
+
+            }
+        }
+
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                point.X = e.X;
+                point.Y = e.Y;
+                graphics.DrawLine(blackPen, PreviousPoint, point);
+                PreviousPoint.X = point.X;
+                PreviousPoint.Y = point.Y;
+                pictureBox1.Invalidate();
             }
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < bmp.Width; i++)
-            {
-                if (i % 2 == 0)
-                {
-                    for (int z = 0; z < bmp.Height; z++)
-                    {
-                        int color = (255 + bmp.GetPixel(i, z).R + bmp.GetPixel(i, z).G + bmp.GetPixel(i, z).B) / 4;
-                        bmp.SetPixel(i, z, Color.FromArgb(color, color, color));
-                        pictureBox1.Image = bmp;
-                    }
-                }
-
-            }
 
         }
+
+   
     }
 }
