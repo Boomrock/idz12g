@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.IO;
 
 namespace idz12
 {
-    public partial class Form1 : Form
+    public partial class lab : Form
     {
         private Bitmap bmp;
         Graphics graphics;
         Point point, PreviousPoint;
         private Pen blackPen = new Pen(Color.Black,4);
+        string filename;
 
-        public Form1()
+        public lab()
         {
             InitializeComponent();
         }
@@ -26,6 +28,7 @@ namespace idz12
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 // Загружаем изображение из выбранного файла
+                filename = openFileDialog1.FileName;
                 Image image = Image.FromFile(openFileDialog1.FileName);
                 int width = image.Width;
                 int height = image.Height;
@@ -43,10 +46,13 @@ namespace idz12
 
         private void save(Bitmap bmp)
         {
+            saveFileDialog1.FileName = Path.ChangeExtension(Path.GetFileName(filename), null);
+            saveFileDialog1.Filter = "*.BMP | *.bmp |  *.JPG|*.jpg |  *.GIF |*.gif| *.PNG| *.png";
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 string fileName = saveFileDialog1.FileName;
-                string strFilExtn = System.IO.Path.GetExtension(fileName.ToLower());
+                string strFilExtn = Path.GetExtension(filename.ToLower());
+               
                 switch (strFilExtn)
                 {
                     case ".bmp":
@@ -84,19 +90,28 @@ namespace idz12
 
         private void button3_Click(object sender, EventArgs e)
         {
+            NewMethod();
+        }
+
+        private void NewMethod()
+        {
             for (int i = 0; i < bmp.Width; i++)
             {
-                
+                if (i % 2 == 0)
+                {
                     for (int z = 0; z < bmp.Height; z++)
                     {
+
                         var pixel = bmp.GetPixel(i, z);
                         int color = (255 + pixel.R + pixel.G + pixel.B) / 4;
                         bmp.SetPixel(i, z, Color.FromArgb(color, color, color));
-                        pictureBox1.Image = bmp;
                     }
-                
+
+                }
+
 
             }
+            pictureBox1.Image = bmp;
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
